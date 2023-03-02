@@ -28,16 +28,14 @@ class Drinks extends Model
     /**
       * 一覧画面表示用にtest_productテーブルから全てのデータを取得
       */
-      public function findAllDrinks()
-      {
+      public function findAllDrinks() {
           return Drinks::all();
       }
  
       /**
        * 更新処理
        */
-      public function updateDrink($request, $drink)
-      {
+      public function updateDrink($request, $drink) {
           $result = $drink->fill([
               'product_name' => $request->product_name
           ])->save();
@@ -45,8 +43,7 @@ class Drinks extends Model
           return $result;
       }
 
-      public function InsertDrink($request)
-    {
+      public function InsertDrink($request) {
         // リクエストデータを基に管理マスターユーザーに登録する
         return $this->create([
             'company_id' => $request->company_id,
