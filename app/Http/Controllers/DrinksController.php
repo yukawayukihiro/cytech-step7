@@ -47,10 +47,9 @@ class DrinksController extends Controller
 
     //削除機能
     public function destroy($id) {
-        Products::where('id', $id)->delete();
-
         DB::beginTransaction();
         try {
+            Products::where('id', $id)->delete();
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
@@ -73,7 +72,6 @@ class DrinksController extends Controller
     //更新処理
     public function update(Request $request, $id) {
         $drink = Products::find($id);
-
         DB::beginTransaction();
         try {
             $updateDrink = $this->drink->updateDrink($request, $drink);
