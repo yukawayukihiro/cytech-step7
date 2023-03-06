@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Drinks extends Model
+class Products extends Model
 {
     //使用可能なテーブル
     protected $table = "test_products";
@@ -29,7 +29,7 @@ class Drinks extends Model
       * 一覧画面表示用にtest_productテーブルから全てのデータを取得
       */
       public function findAllDrinks() {
-          return Drinks::all();
+          return Products::all();
       }
  
       /**
@@ -43,6 +43,7 @@ class Drinks extends Model
           return $result;
       }
 
+      
       public function InsertDrink($request) {
         // リクエストデータを基に管理マスターユーザーに登録する
         return $this->create([
@@ -51,6 +52,17 @@ class Drinks extends Model
             'price' => $request->price,
             'stock' => $request->stock,
             'comment' => $request->comment,
+        ]);
+    }
+
+    public function registArticle($data) {
+        // 登録処理
+        DB::table('test_products')->insert([
+            'company_id' => $data->title,
+            'product_name' => $data->url,
+            'price' => $data->price,
+            'stock' => $data->stock,
+            'comment' => $data->comment,
         ]);
     }
 }

@@ -3,25 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Drinks;
+use App\Models\Products;
 use App\Http\Requests\ArticleRequest;
 use Illuminate\Support\Facades\DB;
 
 class DrinksController extends Controller
 {
     public function __construct() {
-        $this->drink = new Drinks();
+        $this->drink = new Products();
     }
 
     //商品情報詳細画面でデータを表示するメソッド
     public function detail () {
-        $drinks = Drinks::all();
+        $drinks = Products::all();
         return view('detail')->with('drinks',$drinks);
     }
 
     //商品情報一覧画面へデータを表示するメソッド
     public function index () {
-        $drinks = Drinks::all();
+        $drinks = Products::all();
         return view('index')->with('drinks',$drinks);
     }
 
@@ -32,7 +32,7 @@ class DrinksController extends Controller
         $keyword_stock = $request->stock;
 
         if (!empty($keyword_product_name) && empty($keyword_price) && empty($keyword_stock) ) {
-            $query = Drinks::query();
+            $query = Products::query();
             $drinks = $query->where('product_name','like','%' .$keyword_product_name. '%')->get();
             $message = "「". $keyword_product_name."」を含む名前の検索が完了しました。";
             return view('/serch')->with([
@@ -47,21 +47,19 @@ class DrinksController extends Controller
 
     //削除機能
     public function destroy($id) {
-            Drinks::where('id', $id)->delete();
+        Products::where('id', $id)->delete();
             return redirect('/index')->with('success', '削除しました');
         }
 
-    
-
     //編集のトップ画面メソッド
     public function top () {
-        $drinks = Drinks::all();
+        $drinks = Products::all();
         return view('top')->with('drinks',$drinks);
     }
 
     //編集画面の表示
     public function edit($id) {
-        $drink = Drinks::find($id);
+        $drink = Products::find($id);
 
         return view('edit', compact('drink'));
     }
@@ -69,7 +67,7 @@ class DrinksController extends Controller
     //更新処理メソッド
     //更新処理
     public function update(Request $request, $id) {
-        $drink = Drinks::find($id);
+        $drink = Products::find($id);
         $updateDrink = $this->drink->updateDrink($request, $drink);
 
         return redirect()->route('top');
@@ -85,8 +83,29 @@ class DrinksController extends Controller
     /**
      * 登録処理
      */
+    
     public function store(Request $request) {
         $registerDrink = $this->drink->InsertDrink($request);
         return redirect()->route('index');
+    }
+
+    //例外処理
+    public function registSubmit(ArticleRequest $request) {
+
+        // トランザクション開始
+        DB::beginTransaction();
+    
+        try {
+            // 登録処理呼び出し
+            $model = new Products();
+            $model->registArticle($request);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back();
+        }
+    
+        // 処理が完了したらregistにリダイレクト
+        return redirect(route('create'));
     }
 }
