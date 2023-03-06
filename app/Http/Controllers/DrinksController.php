@@ -40,7 +40,7 @@ class DrinksController extends Controller
                 'message'=>$message,
             ]);
         }else {
-            $message = "検索結果はありません。";
+            $message = config('const.message');
             return view('/serch')->with('message',$message);
             }
     }
@@ -48,7 +48,14 @@ class DrinksController extends Controller
     //削除機能
     public function destroy($id) {
         Products::where('id', $id)->delete();
-            return redirect('/index')->with('success', '削除しました');
+
+        DB::beginTransaction();
+        try {
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+        }
+            return redirect('/index');
         }
 
     //編集のトップ画面メソッド
@@ -60,16 +67,20 @@ class DrinksController extends Controller
     //編集画面の表示
     public function edit($id) {
         $drink = Products::find($id);
-
         return view('edit', compact('drink'));
     }
 
-    //更新処理メソッド
     //更新処理
     public function update(Request $request, $id) {
         $drink = Products::find($id);
-        $updateDrink = $this->drink->updateDrink($request, $drink);
 
+        DB::beginTransaction();
+        try {
+            $updateDrink = $this->drink->updateDrink($request, $drink);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+        }
         return redirect()->route('top');
     }
 
@@ -85,27 +96,13 @@ class DrinksController extends Controller
      */
     
     public function store(Request $request) {
-        $registerDrink = $this->drink->InsertDrink($request);
-        return redirect()->route('index');
-    }
-
-    //例外処理
-    public function registSubmit(ArticleRequest $request) {
-
-        // トランザクション開始
         DB::beginTransaction();
-    
         try {
-            // 登録処理呼び出し
-            $model = new Products();
-            $model->registArticle($request);
+            $registerDrink = $this->drink->InsertDrink($request);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
-            return back();
         }
-    
-        // 処理が完了したらregistにリダイレクト
-        return redirect(route('create'));
+        return redirect()->route('index');
     }
 }

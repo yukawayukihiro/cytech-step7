@@ -17,7 +17,7 @@
 </table>
 @endif
 @if(!empty($message))
-<div class="alert alert-primary" role="alert">{{ $message}}</div>
+<div class="alert alert-primary" role="alert">{{ config('const.message')}}</div>
 @endif
 <button onclick="location.href='{{url('/index')}}'">戻る</button>
 @endsection
